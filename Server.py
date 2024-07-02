@@ -103,7 +103,6 @@ class Session:
 		self.server = server
 		self.registered_clients = []
 
-
 	def client_registered(self, client):
 		if client in self.registered_clients: return
 		# print("Client %c registered for Session %s" % client.name, self.id)
@@ -121,6 +120,7 @@ class Session:
 					address_list.append(client.name + ":" + address_to_string((client.ip, client.port)))
 			address_string = ",".join(address_list)
 			message = bytes( "peers:" + address_string, "utf-8")
+			print(message)
 			self.server.transport.write(message, (addressed_client.ip, addressed_client.port))
 
 		print("Peer info has been sent. Terminating Session")
