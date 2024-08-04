@@ -4,11 +4,10 @@ from time import sleep
 
 import sys
 
-
-
 def address_to_string(address):
 	ip, port = address
 	return ':'.join([ip, str(port)])
+
 
 
 class ServerProtocol(DatagramProtocol):
@@ -107,10 +106,11 @@ class Session:
 		if client in self.registered_clients: return
 		# print("Client %c registered for Session %s" % client.name, self.id)
 		self.registered_clients.append(client)
-		if len(self.registered_clients) == int(self.client_max):
-			sleep(5)
-			print("waited for OK message to send, sending out info to peers")
-			self.exchange_peer_info()
+		self.exchange_peer_info()
+		# if len(self.registered_clients) == int(self.client_max):
+		# 	sleep(5)
+		# 	print("waited for OK message to send, sending out info to peers")
+		# 	self.exchange_peer_info()
 
 	def exchange_peer_info(self):
 		for addressed_client in self.registered_clients:
@@ -123,10 +123,10 @@ class Session:
 			print(message)
 			self.server.transport.write(message, (addressed_client.ip, addressed_client.port))
 
-		print("Peer info has been sent. Terminating Session")
-		for client in self.registered_clients:
-			self.server.client_checkout(client.name)
-		self.server.remove_session(self.id)
+		print("Updated peer info has been sent.")
+		# for client in self.registered_clients:
+		# 	self.server.client_checkout(client.name)
+		# self.server.remove_session(self.id)
 
 
 class Client:
