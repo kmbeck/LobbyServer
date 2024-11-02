@@ -58,8 +58,8 @@ class ServerProtocol(DatagramProtocol):
 
 	def datagramReceived(self, datagram, address):
 		"""Handle incoming datagram messages."""
-		print(datagram)
 		data_string = datagram.decode("utf-8")
+		print(data_string)
 		msg_type = data_string[:2]
 
 		if msg_type == "rs":
@@ -104,7 +104,7 @@ class Session:
 
 	def client_registered(self, client):
 		if client in self.registered_clients: return
-		# print("Client %c registered for Session %s" % client.name, self.id)
+		print("Client %c registered for Session %s" % client.name, self.id)
 		self.registered_clients.append(client)
 		self.exchange_peer_info()
 		# if len(self.registered_clients) == int(self.client_max):
