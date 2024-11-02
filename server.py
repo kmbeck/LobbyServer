@@ -104,7 +104,7 @@ class Session:
 
 	def client_registered(self, client):
 		if client in self.registered_clients: return
-		print("Client %c registered for Session %s" % client.name, self.id)
+		print("Client %s registered for Session %s" % client.name, self.id)
 		self.registered_clients.append(client)
 		self.exchange_peer_info()
 		# if len(self.registered_clients) == int(self.client_max):
