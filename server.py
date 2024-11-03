@@ -106,6 +106,7 @@ class Session:
 		if client in self.registered_clients: return
 		print(f"Client {client.name} registered for Session {self.id}")
 		self.registered_clients.append(client)
+		sleep(5)
 		self.exchange_peer_info()
 		# if len(self.registered_clients) == int(self.client_max):
 		# 	sleep(5)
