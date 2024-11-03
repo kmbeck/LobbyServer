@@ -78,6 +78,7 @@ class ServerProtocol(DatagramProtocol):
 			c_session = split[2]
 			c_ip, c_port = address
 			self.transport.write(bytes('ok:'+str(c_port),"utf-8"), address)
+			print(bytes('ok:'+str(c_port),"utf-8"))
 			self.register_client(c_name, c_session, c_ip, c_port)
 
 		elif msg_type == "ep":
