@@ -78,7 +78,6 @@ class ServerProtocol(DatagramProtocol):
 			c_session = split[2]
 			c_ip, c_port = address
 			self.transport.write(bytes('ok:'+str(c_port),"utf-8"), address)
-			print(bytes('ok:'+str(c_port),"utf-8"))
 			self.register_client(c_name, c_session, c_ip, c_port)
 
 		elif msg_type == "ep":
@@ -107,8 +106,9 @@ class Session:
 		if client in self.registered_clients: return
 		print(f"Client {client.name} registered for Session {self.id}")
 		self.registered_clients.append(client)
-		sleep(5)
-		self.exchange_peer_info()
+		if len(self.registered_clients) > 1:
+			sleep(5)
+			self.exchange_peer_info()
 		# if len(self.registered_clients) == int(self.client_max):
 		# 	sleep(5)
 		# 	print("waited for OK message to send, sending out info to peers")
