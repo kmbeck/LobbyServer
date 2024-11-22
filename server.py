@@ -4,9 +4,9 @@ from time import sleep
 
 import sys
 
-def address_to_string(address):
-	ip, port = address
-	return ':'.join([ip, str(port)])
+# def address_to_string(address):
+# 	ip, port = address
+# 	return ':'.join([ip, str(port)])
 
 
 
@@ -34,14 +34,14 @@ class ServerProtocol(DatagramProtocol):
 			print("Tried to terminate non-existing session")
 
 
-	def register_client(self, c_name, c_session, c_ip, c_port):
+	def register_client(self, c_name, c_session, c_ip, c_local_ip, c_port):
 		if self.name_is_registered(c_name):
 			print("Client %s is already registered." % [c_name])
 			return
 		if not c_session in self.active_sessions:
 			print("Client registered for non-existing session")
 		else:
-			new_client = Client(c_name, c_session, c_ip, c_port)
+			new_client = Client(c_name, c_session, c_ip, c_local_ip, c_port)
 			self.registered_clients[c_name] = new_client
 			self.active_sessions[c_session].client_registered(new_client)
 
@@ -75,10 +75,11 @@ class ServerProtocol(DatagramProtocol):
 			# register client
 			split = data_string.split(":")
 			c_name = split[1]
-			c_session = split[2]
+			c_local_ip = split[2]
+			c_session = split[3]
 			c_ip, c_port = address
             self.transport.write(bytes('ok:'+str(c_port) + ':' + c_ip,"utf-8"), address)
-			self.register_client(c_name, c_session, c_ip, c_port)
+			self.register_client(c_name, c_session, c_ip, c_local_ip, c_port)
 
 		elif msg_type == "ep":
 			# exchange peers
@@ -119,7 +120,7 @@ class Session:
 			address_list = []
 			for client in self.registered_clients:
 				if not client.name == addressed_client.name:
-					address_list.append(client.name + ":" + address_to_string((client.ip, client.port)))
+					address_list.append(':'.join([client.name,client.ip,client.local_ip,client.port]))
 			address_string = ",".join(address_list)
 			message = bytes( "peers:" + address_string, "utf-8")
 			print(message)
@@ -136,10 +137,11 @@ class Client:
 	def confirmation_received(self):
 		self.received_peer_info = True
 
-	def __init__(self, c_name, c_session, c_ip, c_port):
+	def __init__(self, c_name, c_session, c_ip, c_local_ip, c_port):
 		self.name = c_name
 		self.session_id = c_session
-		self.ip = c_ip
+		self.ip = c_ip				# Public IP
+		self.local_ip = c_local_ip	# LAN IP
 		self.port = c_port
 		self.received_peer_info = False
 
