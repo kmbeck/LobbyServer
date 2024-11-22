@@ -65,7 +65,7 @@ class ServerProtocol(DatagramProtocol):
 		if msg_type == "rs":
 			# register session
 			c_ip, c_port = address
-			self.transport.write(bytes('ok:'+str(c_port),"utf-8"), address)
+			self.transport.write(bytes('ok:'+str(c_port) + ":" + c_ip,"utf-8"), address)
 			split = data_string.split(":")
 			session = split[1]
 			max_clients = split[2]
@@ -120,7 +120,7 @@ class Session:
 			address_list = []
 			for client in self.registered_clients:
 				if not client.name == addressed_client.name:
-					address_list.append(':'.join([client.name,client.ip,client.local_ip,client.port]))
+					address_list.append(':'.join([client.name,client.ip,client.local_ip,str(client.port)]))
 			address_string = ",".join(address_list)
 			message = bytes( "peers:" + address_string, "utf-8")
 			print(message)
