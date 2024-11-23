@@ -10,12 +10,6 @@ class ServerProtocol(DatagramProtocol):
 		self.active_sessions = {}
 		self.registered_clients = {}
 
-	# Generate a unique ID for a new Session. This is also the join code.
-	def _gen_session_uid():
-		characters = string.ascii_letters + string.digits  # a-z, A-Z, 0-9
-		session_uid = ''.join(random.choices(characters, k=5))
-		return session_uid
-
 	def name_is_registered(self, name):
 		return name in self.registered_clients
 
@@ -91,7 +85,11 @@ class ServerProtocol(DatagramProtocol):
 			c_name = split[1]
 			self.client_checkout(c_name)
 
-
+	# Generate a unique ID for a new Session. This is also the join code.
+	def _gen_session_uid(self):
+		characters = string.ascii_letters + string.digits  # a-z, A-Z, 0-9
+		session_uid = ''.join(random.choices(characters, k=5))
+		return session_uid
 
 class Session:
 
