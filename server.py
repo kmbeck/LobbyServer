@@ -1,14 +1,8 @@
+import random
+import sys
 from twisted.internet.protocol import DatagramProtocol
 from twisted.internet import reactor
 from time import sleep
-
-import sys
-
-# def address_to_string(address):
-# 	ip, port = address
-# 	return ':'.join([ip, str(port)])
-
-
 
 class ServerProtocol(DatagramProtocol):
 
@@ -19,20 +13,19 @@ class ServerProtocol(DatagramProtocol):
 	def name_is_registered(self, name):
 		return name in self.registered_clients
 
-	def create_session(self, s_id, client_list):
-		if s_id in self.active_sessions:
-			print("Tried to create existing session")
-			return
-
+	def create_session(self, client_list):
+		"""Create a new Session and return it's unique ID."""
+		s_id = _gen_session_uid()
+		while s_id in self.active_sessions:
+			s_id = _gen_session_uid()
 		self.active_sessions[s_id] = Session(s_id, client_list, self)
-
+		return s_id
 
 	def remove_session(self, s_id):
 		try:
 			del self.active_sessions[s_id]
 		except KeyError:
 			print("Tried to terminate non-existing session")
-
 
 	def register_client(self, c_name, c_session, c_ip, c_local_ip, c_port):
 		if self.name_is_registered(c_name):
@@ -65,21 +58,20 @@ class ServerProtocol(DatagramProtocol):
 		if msg_type == "rs":
 			# register session
 			c_ip, c_port = address
-			self.transport.write(bytes('ok:'+str(c_port) + ":" + c_ip,"utf-8"), address)
 			split = data_string.split(":")
-			session = split[1]
 			max_clients = split[2]
-			self.create_session(session, max_clients)
+			s_id = self.create_session(session, max_clients)
+			self.transport.write(bytes('ok:'+str(c_port) + ":" + c_ip + ":" + s_id ,"utf-8"), address)
 
 		elif msg_type == "rc":
 			# register client
 			split = data_string.split(":")
 			c_name = split[1]
 			c_local_ip = split[2]
-			c_session = split[3]
+			c_session_uid = split[3]
 			c_ip, c_port = address
 			self.transport.write(bytes('ok:'+str(c_port) + ':' + c_ip,"utf-8"), address)
-			self.register_client(c_name, c_session, c_ip, c_local_ip, c_port)
+			self.register_client(c_name, c_session_uid, c_ip, c_local_ip, c_port)
 
 		elif msg_type == "ep":
 			# exchange peers
@@ -93,7 +85,11 @@ class ServerProtocol(DatagramProtocol):
 			c_name = split[1]
 			self.client_checkout(c_name)
 
-
+	# Generate a unique ID for a new Session. This is also the join code.
+	def _gen_session_uid():
+		characters = string.ascii_letters + string.digits  # a-z, A-Z, 0-9
+		session_uid = ''.join(random.choices(characters, k=5))
+		return session_uid
 
 class Session:
 
