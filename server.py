@@ -59,7 +59,7 @@ class ServerProtocol(DatagramProtocol):
 			# register session
 			c_ip, c_port = address
 			split = data_string.split(":")
-			max_clients = split[2]
+			max_clients = split[1]
 			s_id = self.create_session(session, max_clients)
 			self.transport.write(bytes('ok:'+str(c_port) + ":" + c_ip + ":" + s_id ,"utf-8"), address)
 
