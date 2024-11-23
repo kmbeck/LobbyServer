@@ -15,9 +15,9 @@ class ServerProtocol(DatagramProtocol):
 
 	def create_session(self, client_list):
 		"""Create a new Session and return it's unique ID."""
-		s_id = _gen_session_uid()
+		s_id = gen_session_uid()
 		while s_id in self.active_sessions:
-			s_id = _gen_session_uid()
+			s_id = gen_session_uid()
 		self.active_sessions[s_id] = Session(s_id, client_list, self)
 		return s_id
 
@@ -86,7 +86,7 @@ class ServerProtocol(DatagramProtocol):
 			self.client_checkout(c_name)
 
 	# Generate a unique ID for a new Session. This is also the join code.
-	def _gen_session_uid(self):
+	def gen_session_uid(self):
 		characters = string.ascii_letters + string.digits  # a-z, A-Z, 0-9
 		session_uid = ''.join(random.choices(characters, k=5))
 		return session_uid
