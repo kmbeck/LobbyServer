@@ -85,6 +85,12 @@ class ServerProtocol(DatagramProtocol):
 			c_name = split[1]
 			self.client_checkout(c_name)
 
+	# Generate a unique ID for a new Session. This is also the join code.
+	def gen_session_uid(self):
+		characters = string.ascii_letters + string.digits  # a-z, A-Z, 0-9
+		session_uid = ''.join(random.choices(characters, k=5))
+		return session_uid
+
 class Session:
 
 	def __init__(self, session_id, max_clients, server):
