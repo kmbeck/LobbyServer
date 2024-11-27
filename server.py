@@ -28,21 +28,21 @@ class ServerProtocol(DatagramProtocol):
 		except KeyError:
 			print("Tried to terminate non-existing session")
 
-	def register_client(self, c_name, c_session, c_ip, c_local_ip, c_port):
+	def register_client(self, c_name, c_session_uid, c_ip, c_local_ip, c_port):
 		if self.name_is_registered(c_name):
 			print("Client %s is already registered." % [c_name])
 			return
-		if not c_session in self.active_sessions:
-			print("Client registered for non-existing session")
+		if not c_session_uid in self.active_sessions:
+			print("Client registered for non-existing session %s" % [c_session_uid])
 		else:
-			new_client = Client(c_name, c_session, c_ip, c_local_ip, c_port)
+			new_client = Client(c_name, c_session_uid, c_ip, c_local_ip, c_port)
 			self.registered_clients[c_name] = new_client
-			self.active_sessions[c_session].client_registered(new_client)
+			self.active_sessions[c_session_uid].client_registered(new_client)
 
 	def exchange_info(self, c_session):
-		if not c_session in self.active_sessions:
+		if not c_session_uid in self.active_sessions:
 			return
-		self.active_sessions[c_session].exchange_peer_info()
+		self.active_sessions[c_session_uid].exchange_peer_info()
 
 	def client_checkout(self, name):
 		try:
@@ -61,7 +61,7 @@ class ServerProtocol(DatagramProtocol):
 			c_ip, c_port = address
 			split = data_string.split(":")
 			max_clients = split[1]
-			s_id = self.create_session(max_clients)
+			s_id = self.create_session(max_clients)	 # Create new Session & returns unique id (join code) of new session.
 			self.transport.write(bytes('ok:'+str(c_port) + ":" + c_ip + ":" + s_id ,"utf-8"), address)
 
 		elif msg_type == "rc":
@@ -88,7 +88,7 @@ class ServerProtocol(DatagramProtocol):
 
 	# Generate a unique ID for a new Session. This is also the join code.
 	def gen_session_uid(self):
-		characters = string.ascii_letters + string.digits  # a-z, A-Z, 0-9
+		characters = string.ascii_lowercase + string.digits  # a-z, A-Z, 0-9
 		session_uid = ''.join(random.choices(characters, k=5))
 		return session_uid
 
