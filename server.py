@@ -89,7 +89,7 @@ class ServerProtocol(DatagramProtocol):
 
 		elif msg_type == "hb":
 			# recieved hearbeat from a host client.
-			split = data_stirng.split(":")
+			split = data_string.split(":")
 			c_session_uid = split[1]
 			self.active_sessions[c_session_uid].last_hb_time = time.time()
 			print(f"updated hb time for session: {c_session_uid} ({self.active_sessions[c_session_uid].last_hb_time})")
