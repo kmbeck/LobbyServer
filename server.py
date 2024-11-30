@@ -16,7 +16,7 @@ class ServerProtocol(DatagramProtocol):
 		self.max_heartbeat_threshold = 30
 		# How often to scan the active game Sessions in seconds.
 		self.scan_interval = 10
-		asyncio.create_task(server.scan_sessions())	# Schedule Session scan job & run
+		asyncio.create_task(self.scan_sessions())# Schedule Session scan job & run
 
 	def name_is_registered(self, name):
 		return name in self.registered_clients
