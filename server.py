@@ -104,7 +104,7 @@ class ServerProtocol(DatagramProtocol):
 			self.active_sessions[c_session_uid].last_hb_time = time.time()
 			print(f"updated hb time for session: {c_session_uid} ({self.active_sessions[c_session_uid].last_hb_time})")
 
-	def scan_sessions():
+	def scan_sessions(self):
 		"""Check active sessions to see if any of them need to be removed"""
 		print('Performing scan for obsolete Sessions...')
 		removed_sessions = 0
