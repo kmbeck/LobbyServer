@@ -1,16 +1,25 @@
 import random
+import sched
 import string
 import sys
 import time
 from twisted.internet.protocol import DatagramProtocol
 from twisted.internet import reactor
 
+const MAX_HEARTBEAT_THRESHOLD = 30
 
 class ServerProtocol(DatagramProtocol):
 
 	def __init__(self):
 		self.active_sessions = {}
 		self.registered_clients = {}
+		self.scheduler = sched.scheduler(time.time,time.sleep)
+		
+		# How often to scan the active game Sessions in seconds.
+		self.scan_interval = 10
+		# Schedule first Session scan job & run.
+		self.scheduler.enter(self.scan_interval,1,scan_sessions)
+		self.scheduler.run()
 
 	def name_is_registered(self, name):
 		return name in self.registered_clients
@@ -30,9 +39,10 @@ class ServerProtocol(DatagramProtocol):
 			print("Tried to terminate non-existing session")
 
 	def register_client(self, c_name, c_session_uid, c_ip, c_local_ip, c_port):
-		if self.name_is_registered(c_name):
-			print("Client %s is already registered." % [c_name])
-			return
+		# if (self.name_is_registered(c_name) and 
+		# 		c_session_uid != self.registered_clients[c_name].session_id):
+		# 	print("Client %s is already registered to a different session." % [c_name])
+		# 	return
 		if not c_session_uid in self.active_sessions:
 			print("Client registered for non-existing session %s" % [c_session_uid])
 		else:
@@ -93,6 +103,19 @@ class ServerProtocol(DatagramProtocol):
 			c_session_uid = split[1]
 			self.active_sessions[c_session_uid].last_hb_time = time.time()
 			print(f"updated hb time for session: {c_session_uid} ({self.active_sessions[c_session_uid].last_hb_time})")
+
+	def scan_sessions():
+		"""Check active sessions to see if any of them need to be removed"""
+		print('Performing scan for obsolete Sessions...')
+		removed_sessions = 0
+		for key,val in self.active_sessions:
+			if time.time() - val.last_hb_time > MAX_HEARTBEAT_THRESHOLD:
+				del self.active_sessions[key]
+		print(f'\tRemoved {removed_sessions} sessions.')
+
+		# Schedule subsequent Session scan job & run.
+		self.scheduler.enter(self.scan_interval,1,scan_sessions)
+		self.scheduler.run()
 
 	# Generate a unique ID for a new Session. This is also the join code.
 	def gen_session_uid(self):
