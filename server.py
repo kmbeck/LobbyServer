@@ -170,14 +170,19 @@ class Client:
 		self.port = c_port
 		self.received_peer_info = False
 
-if __name__ == '__main__':
-	if len(sys.argv) < 2:
-		print("Usage: ./server.py PORT")
-		sys.exit(1)
-
+async def start_server():
 	port = int(sys.argv[1])
 	server = ServerProtocol()	# Create our server.
 	asyncio.run(server.scan_sessions())	# Schedule first Session scan job & run.
 	reactor.listenUDP(port, server)
 	print('Listening on *:%d' % (port))
 	reactor.run()
+
+
+if __name__ == '__main__':
+	if len(sys.argv) < 2:
+		print("Usage: ./server.py PORT")
+		sys.exit(1)
+	asyncio.run(start_server())
+
+
