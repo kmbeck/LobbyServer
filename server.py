@@ -173,7 +173,7 @@ class Client:
 async def start_server():
 	port = int(sys.argv[1])
 	server = ServerProtocol()	# Create our server.
-	asyncio.run(server.scan_sessions())	# Schedule first Session scan job & run.
+	await asyncio.run(server.scan_sessions())	# Schedule first Session scan job & run.
 	reactor.listenUDP(port, server)
 	print('Listening on *:%d' % (port))
 	reactor.run()
