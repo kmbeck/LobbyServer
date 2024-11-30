@@ -1,9 +1,10 @@
 import random
 import string
 import sys
+import time
 from twisted.internet.protocol import DatagramProtocol
 from twisted.internet import reactor
-from time import sleep
+
 
 class ServerProtocol(DatagramProtocol):
 
@@ -86,6 +87,13 @@ class ServerProtocol(DatagramProtocol):
 			c_name = split[1]
 			self.client_checkout(c_name)
 
+		elif msg_type == "hb":
+			# recieved hearbeat from a host client.
+			split = data_stirng.split(":")
+			c_session_uid = split[1]
+			self.active_sessions[c_session_uid].last_hb_time = time.time()
+			print(f"updated hb time for session: {c_session_uid} ({self.active_sessions[c_session_uid].last_hb_time})")
+
 	# Generate a unique ID for a new Session. This is also the join code.
 	def gen_session_uid(self):
 		characters = string.ascii_lowercase + string.digits  # a-z, A-Z, 0-9
@@ -98,6 +106,7 @@ class Session:
 		self.id = session_id
 		self.client_max = max_clients
 		self.server = server
+		self.last_hb_time = time.time()
 		self.registered_clients = []
 
 	def client_registered(self, client):
@@ -105,7 +114,7 @@ class Session:
 		print(f"Client {client.name} registered for Session {self.id}")
 		self.registered_clients.append(client)
 		if len(self.registered_clients) > 1:
-			sleep(5)
+			time.sleep(5)
 			self.exchange_peer_info()
 		# if len(self.registered_clients) == int(self.client_max):
 		# 	sleep(5)
