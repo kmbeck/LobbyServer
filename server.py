@@ -6,7 +6,7 @@ import time
 from twisted.internet.protocol import DatagramProtocol
 from twisted.internet import reactor
 
-const MAX_HEARTBEAT_THRESHOLD = 30
+MAX_HEARTBEAT_THRESHOLD = 30
 
 class ServerProtocol(DatagramProtocol):
 
