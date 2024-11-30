@@ -18,7 +18,7 @@ class ServerProtocol(DatagramProtocol):
 		# How often to scan the active game Sessions in seconds.
 		self.scan_interval = 10
 		# Schedule first Session scan job & run.
-		self.scheduler.enter(self.scan_interval,1,scan_sessions)
+		self.scheduler.enter(self.scan_interval,1,self.scan_sessions)
 		self.scheduler.run()
 
 	def name_is_registered(self, name):
