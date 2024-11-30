@@ -16,7 +16,11 @@ class ServerProtocol(DatagramProtocol):
 		self.max_heartbeat_threshold = 30
 		# How often to scan the active game Sessions in seconds.
 		self.scan_interval = 10
-		asyncio.create_task(self.scan_sessions())# Schedule Session scan job & run
+		# Schedule Session scan job & run
+		try:
+			self.scan_task = asyncio.create_task(self.scan_sessions())
+		except KeyboardInterrupt:
+			self.scan_task.cancel()
 
 	def name_is_registered(self, name):
 		return name in self.registered_clients
@@ -110,9 +114,12 @@ class ServerProtocol(DatagramProtocol):
 				del self.active_sessions[key]
 		print(f'\tRemoved {removed_sessions} sessions.')
 
-		# Wait until scanning again.
-		await asyncio.sleep(self.scan_interval)
-		asyncio.create_task(self.scan_sessions())# Start next run.
+		# Wait until scanning again.		
+		try:
+			await asyncio.sleep(self.scan_interval)
+			self.scan_task = asyncio.create_task(self.scan_sessions())
+		except KeyboardInterrupt:
+			self.scan_task.cancel()
 
 	# Generate a unique ID for a new Session. This is also the join code.
 	def gen_session_uid(self):
