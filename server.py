@@ -183,6 +183,6 @@ if __name__ == '__main__':
 	if len(sys.argv) < 2:
 		print("Usage: ./server.py PORT")
 		sys.exit(1)
-	asyncio.run(start_server())
+	await asyncio.run(start_server())
 
 
