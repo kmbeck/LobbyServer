@@ -16,6 +16,7 @@ class ServerProtocol(DatagramProtocol):
 		self.max_heartbeat_threshold = 30
 		# How often to scan the active game Sessions in seconds.
 		self.scan_interval = 10
+		asyncio.create_task(server.scan_sessions())	# Schedule Session scan job & run
 
 	def name_is_registered(self, name):
 		return name in self.registered_clients
@@ -170,19 +171,14 @@ class Client:
 		self.port = c_port
 		self.received_peer_info = False
 
-async def start_server():
-	port = int(sys.argv[1])
-	server = ServerProtocol()	# Create our server.
-	await asyncio.run(server.scan_sessions())	# Schedule first Session scan job & run.
-	reactor.listenUDP(port, server)
-	print('Listening on *:%d' % (port))
-	reactor.run()
-
-
 if __name__ == '__main__':
 	if len(sys.argv) < 2:
 		print("Usage: ./server.py PORT")
-		sys.exit(1)
-	await asyncio.run(start_server())
+		sys.exit(1)	
+	port = int(sys.argv[1])
+	server = ServerProtocol()	# Create our server.
+	reactor.listenUDP(port, server)
+	print('Listening on *:%d' % (port))
+	reactor.run()
 
 
