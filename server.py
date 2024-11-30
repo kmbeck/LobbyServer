@@ -103,16 +103,16 @@ class ServerProtocol(DatagramProtocol):
 
 	async def scan_sessions(self):
 		"""Check active sessions to see if any of them need to be removed"""
-		while True:
-			print('Performing scan for obsolete Sessions...')
-			removed_sessions = 0
-			for key,val in self.active_sessions:
-				if time.time() - val.last_hb_time > self.max_heartbeat_threshold:
-					del self.active_sessions[key]
-			print(f'\tRemoved {removed_sessions} sessions.')
+		print('Performing scan for obsolete Sessions...')
+		removed_sessions = 0
+		for key,val in self.active_sessions:
+			if time.time() - val.last_hb_time > self.max_heartbeat_threshold:
+				del self.active_sessions[key]
+		print(f'\tRemoved {removed_sessions} sessions.')
 
-			# Wait until scanning again.
-			await asyncio.sleep(self.scan_interval)
+		# Wait until scanning again.
+		await asyncio.sleep(self.scan_interval)
+		asyncio.create_task(self.scan_sessions())# Start next run.
 
 	# Generate a unique ID for a new Session. This is also the join code.
 	def gen_session_uid(self):
