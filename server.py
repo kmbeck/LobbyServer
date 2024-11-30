@@ -114,7 +114,7 @@ class ServerProtocol(DatagramProtocol):
 		print(f'\tRemoved {removed_sessions} sessions.')
 
 		# Schedule subsequent Session scan job & run.
-		self.scheduler.enter(self.scan_interval,1,scan_sessions)
+		self.scheduler.enter(self.scan_interval,1,self.scan_sessions)
 		self.scheduler.run()
 
 	# Generate a unique ID for a new Session. This is also the join code.
