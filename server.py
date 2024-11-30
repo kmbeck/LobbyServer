@@ -1,3 +1,4 @@
+import asyncio
 import random
 import sched
 import string
@@ -6,20 +7,17 @@ import time
 from twisted.internet.protocol import DatagramProtocol
 from twisted.internet import reactor
 
-MAX_HEARTBEAT_THRESHOLD = 30
-
 class ServerProtocol(DatagramProtocol):
 
 	def __init__(self):
 		self.active_sessions = {}
 		self.registered_clients = {}
-		self.scheduler = sched.scheduler(time.time,time.sleep)
 		
+		self.max_heartbeat_threshold = 30
 		# How often to scan the active game Sessions in seconds.
 		self.scan_interval = 10
 		# Schedule first Session scan job & run.
-		self.scheduler.enter(self.scan_interval,1,self.scan_sessions)
-		self.scheduler.run()
+		asyncio.run(self.scan_sessions())
 
 	def name_is_registered(self, name):
 		return name in self.registered_clients
@@ -114,8 +112,8 @@ class ServerProtocol(DatagramProtocol):
 		print(f'\tRemoved {removed_sessions} sessions.')
 
 		# Schedule subsequent Session scan job & run.
-		self.scheduler.enter(self.scan_interval,1,self.scan_sessions)
-		self.scheduler.run()
+		await asyncio.sleep(self.scan_interval)
+		asyncio.run(self.scan_sessions())
 
 	# Generate a unique ID for a new Session. This is also the join code.
 	def gen_session_uid(self):
