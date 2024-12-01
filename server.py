@@ -117,7 +117,7 @@ class ServerProtocol(DatagramProtocol):
 
 	def start_periodic_session_scans(self):
 		"""asdfasdf"""
-		timer = threading.timer(
+		timer = threading.Timer(
 			self.scan_interval, self.start_periodic_session_scans)
 		timer.start()
 		if not self.scanning_sessions:
