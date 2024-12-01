@@ -109,7 +109,7 @@ class ServerProtocol(DatagramProtocol):
 		self.scanning_sessions = True
 		print('Performing scan for obsolete Sessions...')
 		removed_sessions = 0
-		for key,val in self.active_sessions:
+		for key,val in self.active_sessions.items():
 			if time.time() - val.last_hb_time > self.max_heartbeat_threshold:
 				del self.active_sessions[key]
 		print(f'\tRemoved {removed_sessions} sessions.')
