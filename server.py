@@ -124,7 +124,7 @@ class ServerProtocol(DatagramProtocol):
 			try:
 				self.scan_sessions()
 			except KeyboardInterrupt:
-				timer.stop()
+				timer.cancel()
 				return
 
 	# Generate a unique ID for a new Session. This is also the join code.
