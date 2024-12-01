@@ -1,9 +1,9 @@
-import asyncio
 import random
 import sched
 import string
 import sys
 import time
+import threading
 from twisted.internet.protocol import DatagramProtocol
 from twisted.internet import reactor
 
@@ -16,11 +16,10 @@ class ServerProtocol(DatagramProtocol):
 		self.max_heartbeat_threshold = 30
 		# How often to scan the active game Sessions in seconds.
 		self.scan_interval = 10
+		# Is the server currently running a scan?
+		self.scanning_sessions = False
 		# Schedule Session scan job & run
-		try:
-			self.scan_task = asyncio.create_task(self.scan_sessions())
-		except KeyboardInterrupt:
-			self.scan_task.cancel()
+		self.start_periodic_session_scans()
 
 	def name_is_registered(self, name):
 		return name in self.registered_clients
@@ -105,21 +104,24 @@ class ServerProtocol(DatagramProtocol):
 			self.active_sessions[c_session_uid].last_hb_time = time.time()
 			print(f"updated hb time for session: {c_session_uid} ({self.active_sessions[c_session_uid].last_hb_time})")
 
-	async def scan_sessions(self):
+	def scan_sessions(self):
 		"""Check active sessions to see if any of them need to be removed"""
+		self.scanning_sessions = True
 		print('Performing scan for obsolete Sessions...')
 		removed_sessions = 0
 		for key,val in self.active_sessions:
 			if time.time() - val.last_hb_time > self.max_heartbeat_threshold:
 				del self.active_sessions[key]
 		print(f'\tRemoved {removed_sessions} sessions.')
+		self.scanning_sessions = False
 
-		# Wait until scanning again.		
-		try:
-			await asyncio.sleep(self.scan_interval)
-			self.scan_task = asyncio.create_task(self.scan_sessions())
-		except KeyboardInterrupt:
-			self.scan_task.cancel()
+	def start_periodic_session_scans(self):
+		"""asdfasdf"""
+		timer = threading.timer(
+			self.scan_interval, self.start_periodic_session_scans)
+		timer.start()
+		if not self.scanning_sessions:
+			self.scan_sessions()
 
 	# Generate a unique ID for a new Session. This is also the join code.
 	def gen_session_uid(self):
@@ -178,18 +180,14 @@ class Client:
 		self.port = c_port
 		self.received_peer_info = False
 
-async def start_server():
-	port = int(sys.argv[1])
-	server = ServerProtocol()	# Create our server.
-	reactor.listenUDP(port, server)
-	print('Listening on *:%d' % (port))
-	reactor.run()
-
 if __name__ == '__main__':
 	if len(sys.argv) < 2:
 		print("Usage: ./server.py PORT")
 		sys.exit(1)
-	asyncio.run(start_server())
+	port = int(sys.argv[1])
+	reactor.listenUDP(port, ServerProtocol())
+	print('Listening on *:%d' % (port))
+	reactor.run()
 
 
 
