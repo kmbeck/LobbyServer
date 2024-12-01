@@ -101,13 +101,14 @@ class ServerProtocol(DatagramProtocol):
 			# recieved hearbeat from a host client.
 			split = data_string.split(":")
 			c_session_uid = split[1]
-			self.active_sessions[c_session_uid].last_hb_time = time.time()
-			print(f"updated hb time for session: {c_session_uid} ({self.active_sessions[c_session_uid].last_hb_time})")
+			if c_session_uid in self.active_sessions:
+				self.active_sessions[c_session_uid].last_hb_time = time.time()
+				print(f"updated hb time for session: {c_session_uid} ({self.active_sessions[c_session_uid].last_hb_time})")
 
 	def scan_sessions(self):
 		"""Check active sessions to see if any of them need to be removed"""
 		self.scanning_sessions = True
-		print('Performing scan for obsolete Sessions...')
+		print('Performing Session scan...',end='')
 		obsolete_keys = []
 		for key,val in self.active_sessions.items():
 			if time.time() - val.last_hb_time > self.max_heartbeat_threshold:
@@ -115,8 +116,10 @@ class ServerProtocol(DatagramProtocol):
 
 		for key in obsolete_keys:
 			del self.active_sessions[key]
-		
-		print(f'\tRemoved {len(obsolete_keys)} sessions.')
+		print('Results:')
+		print(f'  - Cleaned {len(obsolete_keys)} Sessions.')
+		print(f'  - Current Sessions: {len(self.active_sessions.keys())}')
+		print(f'    - {str(self.active_sessions.keys())}')
 		self.scanning_sessions = False
 
 	def start_periodic_session_scans(self):
