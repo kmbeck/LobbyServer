@@ -121,7 +121,11 @@ class ServerProtocol(DatagramProtocol):
 			self.scan_interval, self.start_periodic_session_scans)
 		timer.start()
 		if not self.scanning_sessions:
-			self.scan_sessions()
+			try:
+				self.scan_sessions()
+			except KeyboardInterrupt:
+				timer.stop()
+				return
 
 	# Generate a unique ID for a new Session. This is also the join code.
 	def gen_session_uid(self):
