@@ -120,7 +120,7 @@ class ServerProtocol(DatagramProtocol):
 
 		end_time = time.time()
 		print('Results:')
-		print(f'  - Total Time: {(end_time - start_time) * 1000} ms.')
+		print(f'  - Total Time: {((end_time - start_time) * 1000):.5f} ms.')
 		print(f'  - Cleaned {len(obsolete_keys)} Sessions.')
 		print(f'  - Current Sessions: {len(self.active_sessions.keys())}')
 		print(f'    - {str(list(self.active_sessions.keys()))}')
