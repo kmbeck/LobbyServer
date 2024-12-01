@@ -119,7 +119,7 @@ class ServerProtocol(DatagramProtocol):
 		print('Results:')
 		print(f'  - Cleaned {len(obsolete_keys)} Sessions.')
 		print(f'  - Current Sessions: {len(self.active_sessions.keys())}')
-		print(f'    - {str(self.active_sessions.keys())}')
+		print(f'    - {str(list(self.active_sessions.keys()))}')
 		self.scanning_sessions = False
 
 	def start_periodic_session_scans(self):
