@@ -108,11 +108,15 @@ class ServerProtocol(DatagramProtocol):
 		"""Check active sessions to see if any of them need to be removed"""
 		self.scanning_sessions = True
 		print('Performing scan for obsolete Sessions...')
-		removed_sessions = 0
+		obsolete_keys = []
 		for key,val in self.active_sessions.items():
 			if time.time() - val.last_hb_time > self.max_heartbeat_threshold:
-				del self.active_sessions[key]
-		print(f'\tRemoved {removed_sessions} sessions.')
+				obsolete_keys.append(key)
+
+		for key in obsolete_keys:
+			del self.active_sessions[key]
+		
+		print(f'\tRemoved {len(obsolete_keys)} sessions.')
 		self.scanning_sessions = False
 
 	def start_periodic_session_scans(self):
