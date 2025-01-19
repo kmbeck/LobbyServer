@@ -13,7 +13,11 @@ class ServerProtocol(DatagramProtocol):
 		self.active_sessions = {}
 		self.registered_clients = {}
 		
+		# If server hasnt heard from a session host within this threshold, the lobby
+		# they are associated with will be obsolete and will be removed from
+		# active_sessions.
 		self.max_heartbeat_threshold = 30
+
 		# How often to scan the active game Sessions in seconds.
 		self.scan_interval = 10
 		# Is the server currently running a scan?
