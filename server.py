@@ -42,7 +42,7 @@ class ServerProtocol(DatagramProtocol):
 		except KeyError:
 			print("Tried to terminate non-existing session")
 
-	def register_client(self, c_name, c_session_uid, c_ip, c_local_ip, c_port):
+	def register_client(self, c_name, c_host, c_session_uid, c_ip, c_local_ip, c_port):
 		# if (self.name_is_registered(c_name) and 
 		# 		c_session_uid != self.registered_clients[c_name].session_id):
 		# 	print("Client %s is already registered to a different session." % [c_name])
@@ -50,7 +50,7 @@ class ServerProtocol(DatagramProtocol):
 		if not c_session_uid in self.active_sessions:
 			print("Client registered for non-existing session %s" % [c_session_uid])
 		else:
-			new_client = Client(c_name, c_session_uid, c_ip, c_local_ip, c_port)
+			new_client = Client(c_name, c_host, c_session_uid, c_ip, c_local_ip, c_port)
 			self.registered_clients[c_name] = new_client
 			self.active_sessions[c_session_uid].client_registered(new_client)
 
