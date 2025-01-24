@@ -79,11 +79,12 @@ class ServerProtocol(DatagramProtocol):
 			# register client
 			split = data_string.split(":")
 			c_name = split[1]
+			c_host = True if split[4] == 'true' else False
 			c_local_ip = split[2]
 			c_session_uid = split[3]
 			c_ip, c_port = address
 			self.transport.write(bytes('ok:'+str(c_port) + ':' + c_ip,"utf-8"), address)
-			self.register_client(c_name, c_session_uid, c_ip, c_local_ip, c_port)
+			self.register_client(c_name, c_host, c_session_uid, c_ip, c_local_ip, c_port)
 
 		elif msg_type == "ep":
 			# exchange peers
@@ -163,7 +164,8 @@ class Session:
 			address_list = []
 			for client in self.registered_clients:
 				if not client.name == addressed_client.name:
-					address_list.append(':'.join([client.name,client.ip,client.local_ip,str(client.port)]))
+					c_host = 'true' if client.is_host else 'false'
+					address_list.append(':'.join([client.name,client.ip,client.local_ip,str(client.port),c_host]))
 			address_string = ",".join(address_list)
 			message = bytes( "peers:" + address_string, "utf-8")
 			print(message)
@@ -180,8 +182,9 @@ class Client:
 	def confirmation_received(self):
 		self.received_peer_info = True
 
-	def __init__(self, c_name, c_session, c_ip, c_local_ip, c_port):
+	def __init__(self, c_name, c_host, c_session, c_ip, c_local_ip, c_port):
 		self.name = c_name
+		self.is_host = c_host
 		self.session_id = c_session
 		self.ip = c_ip				# Public IP
 		self.local_ip = c_local_ip	# LAN IP
